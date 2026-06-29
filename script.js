@@ -263,7 +263,7 @@ const initContactForm = () => {
     submitBtn.style.opacity = '0.7';
 
     try {
-      await emailjs.send("sooyeongfactory", "template_t60w3w4", {
+      await emailjs.send("sooyeongfactory", "template_k9o599q", {
         company: company.value.trim(),
         phone: phone.value.trim(),
         quantity: quantity.value.trim() || "미입력",
