@@ -193,7 +193,9 @@ const initContactForm = () => {
   const form = $('#contactForm');
   if (!form) return;
 
-  emailjs.init("1C7gj6wJXaI7m8n27");
+  emailjs.init({
+  publicKey: "1C7gj6wJXaI7m8n27",
+});
 
   const showError = (input, msg) => {
     clearError(input);
@@ -275,7 +277,9 @@ const initContactForm = () => {
       form.reset();
     } catch (error) {
       console.error("EmailJS Error:", error);
-      alert('전송 중 오류가 발생했습니다.\n잠시 후 다시 시도해 주세요.');
+console.log("status =", error.status);
+console.log("text =", error.text);
+alert(`전송 실패: ${error.status} / ${error.text}`);
     } finally {
       submitBtn.textContent = originalText;
       submitBtn.disabled = false;
