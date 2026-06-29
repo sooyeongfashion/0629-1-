@@ -194,7 +194,7 @@ const initContactForm = () => {
   if (!form) return;
 
   emailjs.init({
-  publicKey: "1C7gj6wJXaI7m8n27",
+  publicKey: "Ic7qj6wJXal7m8n27",
 });
 
   const showError = (input, msg) => {
@@ -265,7 +265,7 @@ const initContactForm = () => {
     submitBtn.style.opacity = '0.7';
 
     try {
-      await emailjs.send("sooyeongfactory", "template_k9o599q", {
+      await emailjs.send("sooyeongfactory", "template_n8gs5bs", {
         company: company.value.trim(),
         phone: phone.value.trim(),
         quantity: quantity.value.trim() || "미입력",
