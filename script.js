@@ -187,18 +187,21 @@ const initPortfolioFilter = () => {
 
 
 /* ========================================
-   8. Contact 폼 유효성 검사 & 제출
+   8. Contact 폼 유효성 검사 & EmailJS 전송
    ======================================== */
 const initContactForm = () => {
   const form = $('#contactForm');
   if (!form) return;
 
+  emailjs.init("1C7gj6wJXaI7m8n27");
+
   const showError = (input, msg) => {
     clearError(input);
     input.style.borderColor = '#c0504a';
-    input.style.boxShadow   = '0 0 0 3px rgba(192,80,74,0.12)';
+    input.style.boxShadow = '0 0 0 3px rgba(192,80,74,0.12)';
+
     const el = document.createElement('p');
-    el.className   = 'form-error';
+    el.className = 'form-error';
     el.textContent = msg;
     el.style.cssText = 'font-size:.75rem;color:#c06050;margin-top:.35rem;font-family:inherit;';
     input.parentElement.appendChild(el);
@@ -207,7 +210,7 @@ const initContactForm = () => {
   const clearError = (input) => {
     input.parentElement.querySelector('.form-error')?.remove();
     input.style.borderColor = '';
-    input.style.boxShadow   = '';
+    input.style.boxShadow = '';
   };
 
   const isValidPhone = (v) => /^[\d\s\-+().]{7,20}$/.test(v.trim());
@@ -216,44 +219,68 @@ const initContactForm = () => {
     input.addEventListener('input', () => clearError(input));
   });
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const company = $('#company', form);
-    const phone   = $('#phone', form);
+    const phone = $('#phone', form);
+    const quantity = $('#quantity', form);
     const message = $('#message', form);
+
     let valid = true;
 
     if (!company.value.trim()) {
-      showError(company, '회사명 또는 성함을 입력해 주세요.'); valid = false;
-    } else { clearError(company); }
+      showError(company, '회사명 또는 성함을 입력해 주세요.');
+      valid = false;
+    } else {
+      clearError(company);
+    }
 
     if (!phone.value.trim()) {
-      showError(phone, '연락처를 입력해 주세요.'); valid = false;
+      showError(phone, '연락처를 입력해 주세요.');
+      valid = false;
     } else if (!isValidPhone(phone.value)) {
-      showError(phone, '올바른 전화번호 형식으로 입력해 주세요.'); valid = false;
-    } else { clearError(phone); }
+      showError(phone, '올바른 전화번호 형식으로 입력해 주세요.');
+      valid = false;
+    } else {
+      clearError(phone);
+    }
 
     if (!message.value.trim()) {
-      showError(message, '문의 내용을 입력해 주세요.'); valid = false;
-    } else { clearError(message); }
+      showError(message, '문의 내용을 입력해 주세요.');
+      valid = false;
+    } else {
+      clearError(message);
+    }
 
     if (!valid) return;
 
     const submitBtn = form.querySelector('[type="submit"]');
-    const orig = submitBtn.textContent;
+    const originalText = submitBtn.textContent;
+
     submitBtn.textContent = '전송 중...';
-    submitBtn.disabled    = true;
+    submitBtn.disabled = true;
     submitBtn.style.opacity = '0.7';
 
-    // ★ 실제 서비스 연동 시 fetch/EmailJS 등으로 교체하세요.
-    setTimeout(() => {
-      alert('문의가 접수되었습니다.\n빠른 시일 내에 연락드리겠습니다. 감사합니다.');
+    try {
+      await emailjs.send("sooyeongfactory", "template_t60w3w4", {
+        company: company.value.trim(),
+        phone: phone.value.trim(),
+        quantity: quantity.value.trim() || "미입력",
+        message: message.value.trim(),
+        time: new Date().toLocaleString("ko-KR"),
+      });
+
+      alert('상담 신청이 완료되었습니다.\n빠른 시간 내 연락드리겠습니다.');
       form.reset();
-      submitBtn.textContent   = orig;
-      submitBtn.disabled      = false;
+    } catch (error) {
+      console.error("EmailJS Error:", error);
+      alert('전송 중 오류가 발생했습니다.\n잠시 후 다시 시도해 주세요.');
+    } finally {
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
       submitBtn.style.opacity = '';
-    }, 600);
+    }
   });
 };
 
@@ -321,13 +348,13 @@ document.addEventListener('DOMContentLoaded', () => {
     button.textContent = "전송 중...";
 
     emailjs
-      .send("sooyeongfactory", "template_t60w3w4", {
-        name: company,
-        phone: phone,
-        quantity: quantity || "미입력",
-        message: message,
-        time: new Date().toLocaleString("ko-KR"),
-      })
+    .send("sooyeongfactory", "template_t60w3w4", {
+    company: company,
+    phone: phone,
+    quantity: quantity || "미입력",
+    message: message,
+    time: new Date().toLocaleString("ko-KR"),
+})
       .then(function () {
         alert("상담 신청이 완료되었습니다. 빠른 시간 내 연락드리겠습니다.");
         form.reset();
