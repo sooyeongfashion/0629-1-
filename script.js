@@ -265,7 +265,7 @@ const initContactForm = () => {
     submitBtn.style.opacity = '0.7';
 
     try {
-      await emailjs.send("sooyeongfactory", "template_n8gs5bs", {
+      await emailjs.send("sooyeongfactory", "template_k9o599q", {
         company: company.value.trim(),
         phone: phone.value.trim(),
         quantity: quantity.value.trim() || "미입력",
