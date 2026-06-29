@@ -189,105 +189,77 @@ const initPortfolioFilter = () => {
 /* ========================================
    8. Contact 폼 유효성 검사 & EmailJS 전송
    ======================================== */
-const initContactForm = () => {
-  const form = $('#contactForm');
-  if (!form) return;
 
-  emailjs.init({
-  publicKey: "Ic7qj6wJXal7m8n27",
-});
+(function () {
+  const contactForm = document.querySelector("#contactForm");
 
-  const showError = (input, msg) => {
-    clearError(input);
-    input.style.borderColor = '#c0504a';
-    input.style.boxShadow = '0 0 0 3px rgba(192,80,74,0.12)';
+  if (!contactForm) return;
 
-    const el = document.createElement('p');
-    el.className = 'form-error';
-    el.textContent = msg;
-    el.style.cssText = 'font-size:.75rem;color:#c06050;margin-top:.35rem;font-family:inherit;';
-    input.parentElement.appendChild(el);
-  };
-
-  const clearError = (input) => {
-    input.parentElement.querySelector('.form-error')?.remove();
-    input.style.borderColor = '';
-    input.style.boxShadow = '';
-  };
-
-  const isValidPhone = (v) => /^[\d\s\-+().]{7,20}$/.test(v.trim());
-
-  $$('.form-input, .form-textarea', form).forEach(input => {
-    input.addEventListener('input', () => clearError(input));
-  });
-
-  form.addEventListener('submit', async (e) => {
+  contactForm.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    const company = $('#company', form);
-    const phone = $('#phone', form);
-    const quantity = $('#quantity', form);
-    const message = $('#message', form);
+    const company = contactForm.querySelector("[name='company']").value.trim();
+    const phone = contactForm.querySelector("[name='phone']").value.trim();
+    const quantity = contactForm.querySelector("[name='quantity']").value.trim();
+    const message = contactForm.querySelector("[name='message']").value.trim();
 
-    let valid = true;
-
-    if (!company.value.trim()) {
-      showError(company, '회사명 또는 성함을 입력해 주세요.');
-      valid = false;
-    } else {
-      clearError(company);
+    if (!company) {
+      alert("회사명 / 담당자를 입력해주세요.");
+      return;
     }
 
-    if (!phone.value.trim()) {
-      showError(phone, '연락처를 입력해 주세요.');
-      valid = false;
-    } else if (!isValidPhone(phone.value)) {
-      showError(phone, '올바른 전화번호 형식으로 입력해 주세요.');
-      valid = false;
-    } else {
-      clearError(phone);
+    if (!phone) {
+      alert("연락처를 입력해주세요.");
+      return;
     }
 
-    if (!message.value.trim()) {
-      showError(message, '문의 내용을 입력해 주세요.');
-      valid = false;
-    } else {
-      clearError(message);
+    if (!quantity) {
+      alert("예상 수량을 입력해주세요.");
+      return;
     }
 
-    if (!valid) return;
+    if (!message) {
+      alert("문의 내용을 입력해주세요.");
+      return;
+    }
 
-    const submitBtn = form.querySelector('[type="submit"]');
-    const originalText = submitBtn.textContent;
+    const submitBtn = contactForm.querySelector("button[type='submit']");
+    const originalText = submitBtn ? submitBtn.innerText : "";
 
-    submitBtn.textContent = '전송 중...';
-    submitBtn.disabled = true;
-    submitBtn.style.opacity = '0.7';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerText = "전송 중...";
+    }
 
-    try {
-      await emailjs.send("sooyeongfactory", "template_k9o599q", {
-        company: company.value.trim(),
-        phone: phone.value.trim(),
-        quantity: quantity.value.trim() || "미입력",
-        message: message.value.trim(),
-        time: new Date().toLocaleString("ko-KR"),
+    const templateParams = {
+      company: company,
+      phone: phone,
+      quantity: quantity,
+      message: message
+    };
+
+    emailjs
+      .send(
+        "sooyeongfactory",
+        "template_k9o599q",
+        templateParams
+      )
+      .then(function () {
+        alert("문의가 정상적으로 접수되었습니다.");
+        contactForm.reset();
+      })
+      .catch(function (error) {
+        console.error("EmailJS Error:", error);
+        alert("전송 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      })
+      .finally(function () {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerText = originalText;
+        }
       });
-
-      alert('상담 신청이 완료되었습니다.\n빠른 시간 내 연락드리겠습니다.');
-      form.reset();
-    } catch (error) {
-      console.error("EmailJS Error:", error);
-console.log("status =", error.status);
-console.log("text =", error.text);
-alert(`전송 실패: ${error.status} / ${error.text}`);
-    } finally {
-      submitBtn.textContent = originalText;
-      submitBtn.disabled = false;
-      submitBtn.style.opacity = '';
-    }
   });
-};
-
+})();
 
 /* ========================================
    9. 헤더 높이 CSS 변수 동기화
